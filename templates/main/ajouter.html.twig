@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une boisson
+{% endblock %}
+
+{% block body %}
+	<h1>Ajouter une boisson</h1>
+	<div class="col-5">
+		{{ form_start(formCocktail) }}
+		{{ form_widget(formCocktail) }}
+
+		{% verbatim %}
+		<div id="app">
+		<div class="mb-3">
+			<label class="form-label required" for="couleur">Couleur</label>
+			<select  class="form-select"  @change = "modif2()"  v-model="selectCouleur">
+			<option v-for="(c,i) in couleurs" :value="i" >
+			{{ c.nom }}
+			</option>
+			</select>
+		</div>
+
+
+		<div class="mb-3">
+			<label class="form-label required" for="fruit">Fruit</label>
+			<select id="fruit" name="fruit" class="form-select">
+			<option v-for="fruit in fruitsFilter" :value="fruit.id" >
+			{{ fruit.nom }}
+			</option>
+			</select>
+		</div>
+		</div>
+		{% endverbatim %}
+			<button type="submit" class="btn btn-success">
+				Ajouter
+			</button>
+		{{ form_end(formCocktail) }}
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.min.js" integrity="sha512-lTLt+W7MrmDfKam+r3D2LURu0F47a3QaW5nF0c6Hl0JDZ57ruei+ovbg7BrZ+0bjVJ5YgzsAWE+RreERbpPE1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script>
+		const app = new Vue({
+			el:'#app',
+			data:{
+				selectCouleur:'',
+				fruits:[],
+				fruitsFilter:[],
+				couleurs:[],
+				url:'http://localhost/__symfony/projet-cocktail/public/fruits-couleurs',
+			},
+			methods:{
+				modif2(){
+				this.modif(this.selectCouleur)
+				},
+				modif(i){
+					let id = this.couleurs[i].id;
+					this.fruitsFilter =[];
+					for (let f of  this.fruits){
+						//console.log(f);
+						if ( f.couleur.id == id){
+							this.fruitsFilter.push(f);
+						}
+					}
+				}
+			},
+			mounted:function () {
+				axios.get(this.url).then(
+						response => {
+						console.log(response.data);
+						this.fruits = response.data.fruits;
+						this.couleurs = response.data.couleurs;
+						this.modif(0);
+						//console.log()
+						}
+				);
+			}
+		});
+	</script>
+
+{% endblock %}
